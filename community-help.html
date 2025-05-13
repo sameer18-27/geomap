@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Help - Local Assistance Network</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      min-height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    /* Container styles */
+    .help-request-system {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header styles */
+    .app-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .app-header h1 {
+      color: #4285F4;
+      font-size: 2.5rem;
+      margin-bottom: 5px;
+    }
+
+    .app-header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    /* Location section styles */
+    .location-section {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .location-section h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .location-instruction {
+      margin-bottom: 15px;
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .location-input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .location-input-group input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .location-input-group button {
+      background-color: #4285F4;
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .location-input-group button:hover {
+      background-color: #3367d6;
+    }
+
+    .location-status {
+      margin-top: 10px;
+      color: #4CAF50;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .location-status-icon {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 20px;
+      height: 20px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 50%;
+      margin-right: 8px;
+      font-size: 12px;
+    }
+
+    .location-warning {
+      margin-top: 10px;
+      color: #FFA000;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .location-warning-icon {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      width: 20px;
+      height: 20px;
+      background-color: #FFA000;
+      color: white;
+      border-radius: 50%;
+      margin-right: 8px;
+      font-size: 12px;
+    }
+
+    /* Tabs styles */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 20px;
+    }
+
+    .tab-button {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .tab-button:hover {
+      color: #4285F4;
+    }
+
+    .tab-button.active {
+      color: #4285F4;
+      border-bottom-color: #4285F4;
+    }
+
+    /* Tab content styles */
+    .tab-content {
+      min-height: 400px;
+    }
+
+    .tab-content h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .no-requests {
+      text-align: center;
+      padding: 40px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      color: #666;
+      font-style: italic;
+    }
+
+    /* Request list styles */
+    .request-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .request-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+
+    .request-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .request-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.2rem;
+    }
+
+    .request-type {
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .request-type.medical {
+      background-color: #EF9A9A;
+      color: #B71C1C;
+    }
+
+    .request-type.domestic {
+      background-color: #81D4FA;
+      color: #01579B;
+    }
+
+    .request-type.social {
+      background-color: #C5E1A5;
+      color: #33691E;
+    }
+
+    .request-type.technical {
+      background-color: #B39DDB;
+      color: #4527A0;
+    }
+
+    .request-type.other {
+      background-color: #FFCC80;
+      color: #E65100;
+    }
+
+    .request-description {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .request-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      color: #757575;
+    }
+
+    .request-user {
+      font-weight: 500;
+    }
+
+    .request-distance {
+      color: #4285F4;
+    }
+
+    /* Status badges */
+    .status-badge {
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .status-active {
+      background-color: #E3F2FD;
+      color: #1976D2;
+    }
+
+    .status-accepted {
+      background-color: #FFF8E1;
+      color: #FFA000;
+    }
+
+    .status-completed {
+      background-color: #E8F5E9;
+      color: #388E3C;
+    }
+
+    .status-cancelled {
+      background-color: #FFEBEE;
+      color: #D32F2F;
+    }
+
+    /* Form styles */
+    .create-request form {
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 5px;
+      color: #757575;
+      font-size: 0.85rem;
+    }
+
+    .submit-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+      background-color: #388E3C;
+    }
+
+    /* Request details modal */
+    .request-details-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .request-details-modal {
+      background-color: white;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #666;
+      cursor: pointer;
+    }
+
+    .request-details-header {
+      padding: 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .request-details-header h2 {
+      margin: 0;
+      color: #333;
+    }
+
+    .request-details-content {
+      padding: 20px;
+    }
+
+    .request-description-full {
+      margin-bottom: 20px;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .request-meta {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .request-meta p {
+      margin: 8px 0;
+      color: #555;
+    }
+
+    .request-location {
+      margin-bottom: 20px;
+    }
+
+    .request-location h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .maps-link {
+      display: inline-block;
+      background-color: #4285F4;
+      color: white;
+      text-decoration: none;
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-weight: 600;
+      transition: background-color 0.3s;
+    }
+
+    .maps-link:hover {
+      background-color: #3367d6;
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .accept-button,
+    .complete-button,
+    .cancel-button {
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+      text-align: center;
+      border: none;
+    }
+
+    .accept-button {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .complete-button {
+      background-color: #FFA000;
+      color: white;
+    }
+
+    .cancel-button {
+      background-color: white;
+      color: #D32F2F;
+      border: 1px solid #D32F2F;
+    }
+
+    .accept-button:hover {
+      background-color: #388E3C;
+    }
+
+    .complete-button:hover {
+      background-color: #F57C00;
+    }
+
+    .cancel-button:hover {
+      background-color: #FFEBEE;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .location-input-group {
+        flex-direction: column;
+      }
+
+      .request-list {
+        grid-template-columns: 1fr;
+      }
+
+      .request-actions {
+        flex-direction: column;
+      }
+
+      .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="help-request-system">
+    <header class="app-header">
+      <h1>Community Help</h1>
+      <p>Connect with people nearby who need or can offer help</p>
+    </header>
+
+    <div class="location-section">
+      <h2>Your Location</h2>
+      <p class="location-instruction">
+        Set your location to see help requests within 1km and allow others to find your requests.
+      </p>
+      <div class="location-input-group">
+        <input
+          type="text"
+          id="location-input"
+          placeholder="Paste Google Maps link to your location (e.g., https://goo.gl/maps/...)"
+        />
+        <button id="update-location-btn">Update Location</button>
+      </div>
+      <div id="location-status-container">
+        <p class="location-warning">
+          <span class="location-warning-icon">!</span> Please set your location to see nearby help requests.
+        </p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-button active" data-tab="nearby">Nearby Requests</button>
+      <button class="tab-button" data-tab="my-requests">My Requests</button>
+      <button class="tab-button" data-tab="create">Create Request</button>
+    </div>
+
+    <div class="tab-content">
+      <div id="nearby-tab" class="tab-panel active">
+        <h2>Help Requests Near You</h2>
+        <div id="nearby-requests-container">
+          <p class="no-requests">No help requests in your area at the moment.</p>
+        </div>
+      </div>
+
+      <div id="my-requests-tab" class="tab-panel">
+        <h2>My Help Requests</h2>
+        <div id="my-requests-container">
+          <p class="no-requests">You haven't created any help requests yet.</p>
+        </div>
+      </div>
+
+      <div id="create-tab" class="tab-panel">
+        <h2>Create a Help Request</h2>
+        <form id="create-request-form">
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              id="title"
+              placeholder="Brief title for your request"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="type">Type of Help</label>
+            <select id="type" required>
+              <option value="medical">Medical</option>
+              <option value="domestic">Domestic</option>
+              <option value="social">Social</option>
+              <option value="technical">Technical</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              placeholder="Describe what kind of help you need"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="specific-location">Specific Location (optional)</label>
+            <input
+              type="text"
+              id="specific-location"
+              placeholder="Google Maps link (if different from your location)"
+            />
+            <small>
+              Leave empty to use your current location, or provide a specific Google Maps link
+            </small>
+          </div>
+
+          <button type="submit" class="submit-button">Create Help Request</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="request-details-overlay" class="request-details-overlay" style="display: none;">
+      <div class="request-details-modal">
+        <button class="close-button" id="close-details-btn">×</button>
+
+        <div class="request-details-header">
+          <h2 id="detail-title">Request Title</h2>
+          <span id="detail-type" class="request-type medical">Type</span>
+        </div>
+
+        <div class="request-details-content">
+          <p id="detail-description" class="request-description-full">Description goes here</p>
+
+          <div class="request-meta">
+            <p><strong>Requested by:</strong> <span id="detail-user">User Name</span></p>
+            <p><strong>Created:</strong> <span id="detail-date">Date</span></p>
+            <p><strong>Status:</strong> <span id="detail-status" class="status-text status-active">Status</span></p>
+            <p id="detail-distance-container"><strong>Distance:</strong> <span id="detail-distance">0</span> km away</p>
+          </div>
+
+          <div class="request-location">
+            <h3>Location</h3>
+            <a id="detail-map-link" href="#" target="_blank" rel="noopener noreferrer" class="maps-link">
+              Open in Google Maps
+            </a>
+          </div>
+
+          <div class="request-actions" id="detail-actions">
+            <!-- Action buttons will be added dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State management
+    const state = {
+      currentUser: {
+        id: 'user1',
+        name: 'Current User',
+        location: null,
+        locationLink: ''
+      },
+      helpRequests: [],
+      activeTab: 'nearby',
+      selectedRequest: null
+    };
+
+    // Mock data for initial requests
+    const mockRequests = [
+      {
+        id: 'req1',
+        userId: 'user2',
+        userName: 'Sarah Johnson',
+        title: 'Need help with groceries',
+        description: 'I broke my leg and need someone to help me carry groceries from the store to my apartment.',
+        type: 'domestic',
+        status: 'active',
+        locationLink: 'https://goo.gl/maps/QKp7wrKwXHZHCbJH7',
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        distance: 0.7 // km
+      },
+      {
+        id: 'req2',
+        userId: 'user3',
+        userName: 'Michael Chen',
+        title: 'Need ride to hospital',
+        description: 'I need a ride to my doctor\'s appointment. I can\'t drive myself due to my medication.',
+        type: 'medical',
+        status: 'active',
+        locationLink: 'https://goo.gl/maps/8ZLdY3v5Jzc7JLWL6',
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        distance: 0.3 // km
+      },
+      {
+        id: 'req3',
+        userId: 'user4',
+        userName: 'Emily Rodriguez',
+        title: 'Help setting up WiFi router',
+        description: 'I\'m not tech-savvy and need help setting up my new WiFi router. It shouldn\'t take more than 15 minutes.',
+        type: 'technical',
+        status: 'active',
+        locationLink: 'https://goo.gl/maps/LZ4zrdTWgKvD9Dft9',
+        createdAt: new Date(Date.now() - 10800000).toISOString(),
+        distance: 0.9 // km
+      }
+    ];
+
+    // DOM elements
+    const elements = {
+      locationInput: document.getElementById('location-input'),
+      updateLocationBtn: document.getElementById('update-location-btn'),
+      locationStatusContainer: document.getElementById('location-status-container'),
+      tabButtons: document.querySelectorAll('.tab-button'),
+      tabPanels: document.querySelectorAll('.tab-panel'),
+      nearbyRequestsContainer: document.getElementById('nearby-requests-container'),
+      myRequestsContainer: document.getElementById('my-requests-container'),
+      createRequestForm: document.getElementById('create-request-form'),
+      requestDetailsOverlay: document.getElementById('request-details-overlay'),
+      closeDetailsBtn: document.getElementById('close-details-btn'),
+      detailTitle: document.getElementById('detail-title'),
+      detailType: document.getElementById('detail-type'),
+      detailDescription: document.getElementById('detail-description'),
+      detailUser: document.getElementById('detail-user'),
+      detailDate: document.getElementById('detail-date'),
+      detailStatus: document.getElementById('detail-status'),
+      detailDistance: document.getElementById('detail-distance'),
+      detailDistanceContainer: document.getElementById('detail-distance-container'),
+      detailMapLink: document.getElementById('detail-map-link'),
+      detailActions: document.getElementById('detail-actions')
+    };
+
+    // Initialize the app
+    function init() {
+      // Load mock data
+      state.helpRequests = [...mockRequests];
+
+      // Set up event listeners
+      setupEventListeners();
+
+      // Render initial UI
+      renderUI();
+    }
+
+    // Set up event listeners
+    function setupEventListeners() {
+      // Update location button
+      elements.updateLocationBtn.addEventListener('click', updateUserLocation);
+
+      // Tab switching
+      elements.tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          const tabName = button.getAttribute('data-tab');
+          switchTab(tabName);
+        });
+      });
+
+      // Create request form
+      elements.createRequestForm.addEventListener('submit', submitHelpRequest);
+
+      // Close details modal
+      elements.closeDetailsBtn.addEventListener('click', () => {
+        elements.requestDetailsOverlay.style.display = 'none';
+      });
+    }
+
+    // Update user location
+    function updateUserLocation() {
+      const locationLink = elements.locationInput.value.trim();
+
+      if (!locationLink) {
+        alert('Please enter a Google Maps link to your location');
+        return;
+      }
+
+      // Basic validation for Google Maps link
+      if (!locationLink.includes('goo.gl/maps') && !locationLink.includes('google.com/maps')) {
+        alert('Please enter a valid Google Maps link');
+        return;
+      }
+
+      // Update state
+      state.currentUser.locationLink = locationLink;
+      state.currentUser.location = { lat: 40.7128, lng: -74.0060 }; // Mock coordinates
+
+      // Update UI
+      updateLocationStatus();
+
+      // Switch to nearby tab
+      switchTab('nearby');
+
+      alert('Your location has been updated! You can now see help requests within 1km of your location.');
+    }
+
+    // Update location status display
+    function updateLocationStatus() {
+      if (state.currentUser.location) {
+        elements.locationStatusContainer.innerHTML = `
+          <p class="location-status">
+            <span class="location-status-icon">✓</span> Your location is set. You can now see help requests within 1km.
+          </p>
+        `;
+      } else {
+        elements.locationStatusContainer.innerHTML = `
+          <p class="location-warning">
+            <span class="location-warning-icon">!</span> Please set your location to see nearby help requests.
+          </p>
+        `;
+      }
+    }
+
+    // Switch between tabs
+    function switchTab(tabName) {
+      // Update state
+      state.activeTab = tabName;
+
+      // Update tab buttons
+      elements.tabButtons.forEach(button => {
+        if (button.getAttribute('data-tab') === tabName) {
+          button.classList.add('active');
+        } else {
+          button.classList.remove('active');
+        }
+      });
+
+      // Update tab panels
+      elements.tabPanels.forEach(panel => {
+        if (panel.id === `${tabName}-tab`) {
+          panel.classList.add('active');
+          panel.style.display = 'block';
+        } else {
+          panel.classList.remove('active');
+          panel.style.display = 'none';
+        }
+      });
+
+      // Render content for the active tab
+      renderTabContent(tabName);
+    }
+
+    // Submit new help request
+    function submitHelpRequest(e) {
+      e.preventDefault();
+
+      // Get form values
+      const title = document.getElementById('title').value.trim();
+      const type = document.getElementById('type').value;
+      const description = document.getElementById('description').value.trim();
+      const specificLocation = document.getElementById('specific-location').value.trim();
+
+      // Validate location
+      if (!state.currentUser.location && !specificLocation) {
+        alert('Please update your location or provide a specific location for this request');
+        return;
+      }
+
+      // Validate Google Maps link if provided
+      if (specificLocation &&
+          !specificLocation.includes('goo.gl/maps') &&
+          !specificLocation.includes('google.com/maps')) {
+        alert('Please enter a valid Google Maps link for the specific location');
+        return;
+      }
+
+      // Create new help request
+      const newRequest = {
+        id: `req${Date.now()}`,
+        userId: state.currentUser.id,
+        userName: state.currentUser.name,
+        title: title,
+        description: description,
+        type: type,
+        status: 'active',
+        locationLink: specificLocation || state.currentUser.locationLink,
+        createdAt: new Date().toISOString(),
+        distance: 0 // It's the user's own request
+      };
+
+      // Add to help requests
+      state.helpRequests.unshift(newRequest);
+
+      // Reset form
+      elements.createRequestForm.reset();
+
+      // Switch to my requests tab
+      switchTab('my-requests');
+
+      // Show success message
+      alert(`Your ${type} help request has been created! Users within 1km will be able to see and respond to it.`);
+    }
+
+    // Accept a help request
+    function acceptRequest(requestId) {
+      state.helpRequests = state.helpRequests.map(req =>
+        req.id === requestId
+          ? { ...req, status: 'accepted', acceptedBy: state.currentUser.id }
+          : req
+      );
+
+      closeRequestDetails();
+      renderUI();
+      alert('You have accepted this help request. Please contact the requester.');
+    }
+
+    // Complete a help request
+    function completeRequest(requestId) {
+      state.helpRequests = state.helpRequests.map(req =>
+        req.id === requestId
+          ? { ...req, status: 'completed' }
+          : req
+      );
+
+      closeRequestDetails();
+      renderUI();
+      alert('This help request has been marked as completed. Thank you for your help!');
+    }
+
+    // Cancel a help request
+    function cancelRequest(requestId) {
+      state.helpRequests = state.helpRequests.map(req =>
+        req.id === requestId
+          ? { ...req, status: 'cancelled' }
+          : req
+      );
+
+      closeRequestDetails();
+      renderUI();
+      alert('This help request has been cancelled.');
+    }
+
+    // Show request details
+    function showRequestDetails(requestId) {
+      const request = state.helpRequests.find(req => req.id === requestId);
+      if (!request) return;
+
+      state.selectedRequest = request;
+
+      // Update details in modal
+      elements.detailTitle.textContent = request.title;
+      elements.detailType.textContent = request.type;
+      elements.detailType.className = `request-type ${request.type}`;
+      elements.detailDescription.textContent = request.description;
+      elements.detailUser.textContent = request.userName;
+      elements.detailDate.textContent = formatDate(request.createdAt);
+      elements.detailStatus.textContent = request.status;
+      elements.detailStatus.className = `status-text ${getStatusClass(request.status)}`;
+
+      // Show/hide distance
+      if (request.distance > 0) {
+        elements.detailDistanceContainer.style.display = 'block';
+        elements.detailDistance.textContent = request.distance;
+      } else {
+        elements.detailDistanceContainer.style.display = 'none';
+      }
+
+      // Set map link
+      elements.detailMapLink.href = request.locationLink;
+
+      // Set action buttons
+      elements.detailActions.innerHTML = '';
+
+      if (request.userId !== state.currentUser.id && request.status === 'active') {
+        const acceptButton = document.createElement('button');
+        acceptButton.className = 'accept-button';
+        acceptButton.textContent = 'Accept Request';
+        acceptButton.addEventListener('click', () => acceptRequest(request.id));
+        elements.detailActions.appendChild(acceptButton);
+      }
+
+      if (request.userId === state.currentUser.id && request.status === 'active') {
+        const cancelButton = document.createElement('button');
+        cancelButton.className = 'cancel-button';
+        cancelButton.textContent = 'Cancel Request';
+        cancelButton.addEventListener('click', () => cancelRequest(request.id));
+        elements.detailActions.appendChild(cancelButton);
+      }
+
+      if (request.status === 'accepted') {
+        const completeButton = document.createElement('button');
+        completeButton.className = 'complete-button';
+        completeButton.textContent = 'Mark as Completed';
+        completeButton.addEventListener('click', () => completeRequest(request.id));
+        elements.detailActions.appendChild(completeButton);
+      }
+
+      // Show modal
+      elements.requestDetailsOverlay.style.display = 'flex';
+    }
+
+    // Close request details modal
+    function closeRequestDetails() {
+      state.selectedRequest = null;
+      elements.requestDetailsOverlay.style.display = 'none';
+    }
+
+    // Render UI based on current state
+    function renderUI() {
+      updateLocationStatus();
+      renderTabContent(state.activeTab);
+    }
+
+    // Render content for the active tab
+    function renderTabContent(tabName) {
+      switch (tabName) {
+        case 'nearby':
+          renderNearbyRequests();
+          break;
+        case 'my-requests':
+          renderMyRequests();
+          break;
+        case 'create':
+          // Nothing to render for create tab
+          break;
+      }
+    }
+
+    // Render nearby requests
+    function renderNearbyRequests() {
+      const nearbyRequests = state.helpRequests.filter(req =>
+        req.userId !== state.currentUser.id &&
+        req.status === 'active' &&
+        req.distance <= 1 // Within 1km
+      );
+
+      if (!state.currentUser.location) {
+        elements.nearbyRequestsContainer.innerHTML = `
+          <p class="no-requests">Please set your location to see nearby help requests.</p>
+        `;
+        return;
+      }
+
+      if (nearbyRequests.length === 0) {
+        elements.nearbyRequestsContainer.innerHTML = `
+          <p class="no-requests">No help requests in your area at the moment.</p>
+        `;
+        return;
+      }
+
+      elements.nearbyRequestsContainer.innerHTML = `
+        <div class="request-list">
+          ${nearbyRequests.map(request => createRequestCard(request)).join('')}
+        </div>
+      `;
+
+      // Add click event listeners to request cards
+      document.querySelectorAll('.request-card').forEach(card => {
+        const requestId = card.getAttribute('data-id');
+        card.addEventListener('click', () => showRequestDetails(requestId));
+      });
+    }
+
+    // Render my requests
+    function renderMyRequests() {
+      const myRequests = state.helpRequests.filter(req => req.userId === state.currentUser.id);
+
+      if (myRequests.length === 0) {
+        elements.myRequestsContainer.innerHTML = `
+          <p class="no-requests">You haven't created any help requests yet.</p>
+        `;
+        return;
+      }
+
+      elements.myRequestsContainer.innerHTML = `
+        <div class="request-list">
+          ${myRequests.map(request => createRequestCard(request, true)).join('')}
+        </div>
+      `;
+
+      // Add click event listeners to request cards
+      document.querySelectorAll('.request-card').forEach(card => {
+        const requestId = card.getAttribute('data-id');
+        card.addEventListener('click', () => showRequestDetails(requestId));
+      });
+    }
+
+    // Create HTML for a request card
+    function createRequestCard(request, isMyRequest = false) {
+      return `
+        <div class="request-card" data-id="${request.id}">
+          <div class="request-header">
+            <h3>${request.title}</h3>
+            ${isMyRequest
+              ? `<span class="status-badge ${getStatusClass(request.status)}">${request.status}</span>`
+              : `<span class="request-type ${request.type}">${request.type}</span>`
+            }
+          </div>
+          <p class="request-description">${request.description.substring(0, 100)}${request.description.length > 100 ? '...' : ''}</p>
+          <div class="request-footer">
+            ${isMyRequest
+              ? `<span class="request-type-small">${request.type}</span>
+                 <span class="request-date">${formatDate(request.createdAt)}</span>`
+              : `<span class="request-user">${request.userName}</span>
+                 <span class="request-distance">${request.distance} km away</span>`
+            }
+          </div>
+        </div>
+      `;
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    }
+
+    // Get status CSS class
+    function getStatusClass(status) {
+      switch (status) {
+        case 'active': return 'status-active';
+        case 'accepted': return 'status-accepted';
+        case 'completed': return 'status-completed';
+        case 'cancelled': return 'status-cancelled';
+        default: return '';
+      }
+    }
+
+    // Initialize the app when the page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
