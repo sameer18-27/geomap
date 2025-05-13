@@ -7,7 +7,10 @@ const HelpRequestSystem = () => {
     id: 'user1',
     name: 'Current User',
     location: null,
-    locationLink: ''
+    locationLink: '',
+    address: '',
+    isLocating: false,
+    locationError: null
   });
 
   // Help requests state
@@ -25,7 +28,7 @@ const HelpRequestSystem = () => {
   const [activeTab, setActiveTab] = useState('nearby'); // 'nearby', 'my-requests', 'create'
   const [showRequestDetails, setShowRequestDetails] = useState(null);
 
-  // Mock data for initial requests
+  // Initialize mock data and detect user location
   useEffect(() => {
     const mockRequests = [
       {
@@ -67,43 +70,100 @@ const HelpRequestSystem = () => {
     ];
 
     setHelpRequests(mockRequests);
+
+    // Automatically detect user location when component mounts
+    detectUserLocation();
   }, []);
 
-  // Handle location input change
-  const handleLocationLinkChange = (e) => {
-    setCurrentUser({
-      ...currentUser,
-      locationLink: e.target.value
-    });
-  };
-
-  // Update user location
-  const updateUserLocation = () => {
-    if (currentUser.locationLink) {
-      // Check if it's a valid Google Maps link (basic validation)
-      if (!currentUser.locationLink.includes('goo.gl/maps') &&
-          !currentUser.locationLink.includes('google.com/maps')) {
-        alert('Please enter a valid Google Maps link');
-        return;
-      }
-
-      // In a real app, you would parse the coordinates from the Google Maps link
-      // or use geocoding to get the actual coordinates
-      setCurrentUser({
-        ...currentUser,
-        location: {
-          lat: 40.7128,
-          lng: -74.0060
-        }
-      });
-
-      alert('Your location has been updated! You can now see help requests within 1km of your location.');
-
-      // Switch to nearby tab to show available requests
-      setActiveTab('nearby');
-    } else {
-      alert('Please enter a Google Maps link to your location');
+  // Automatically detect user's location
+  const detectUserLocation = () => {
+    if (!navigator.geolocation) {
+      setCurrentUser(prev => ({
+        ...prev,
+        locationError: 'Geolocation is not supported by your browser',
+        isLocating: false
+      }));
+      return;
     }
+
+    setCurrentUser(prev => ({
+      ...prev,
+      isLocating: true,
+      locationError: null
+    }));
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Create Google Maps link from coordinates
+        const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+        // Get address using reverse geocoding
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+            {
+              headers: {
+                'User-Agent': 'GeoQuest-App/1.0'
+              }
+            }
+          );
+
+          const data = await response.json();
+          const address = data.display_name || 'Unknown location';
+
+          setCurrentUser(prev => ({
+            ...prev,
+            location: { lat: latitude, lng: longitude },
+            locationLink: googleMapsLink,
+            address: address,
+            isLocating: false
+          }));
+
+          // Switch to nearby tab to show available requests
+          setActiveTab('nearby');
+        } catch (error) {
+          console.error('Error getting address:', error);
+
+          setCurrentUser(prev => ({
+            ...prev,
+            location: { lat: latitude, lng: longitude },
+            locationLink: googleMapsLink,
+            address: 'Location detected (address unavailable)',
+            isLocating: false
+          }));
+
+          // Switch to nearby tab to show available requests
+          setActiveTab('nearby');
+        }
+      },
+      (error) => {
+        console.error('Geolocation error:', error);
+        let errorMessage = 'Unable to get your location';
+
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location access denied. Please enable location services.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out.';
+            break;
+          default:
+            errorMessage = 'An unknown error occurred while getting your location.';
+        }
+
+        setCurrentUser(prev => ({
+          ...prev,
+          locationError: errorMessage,
+          isLocating: false
+        }));
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
   };
 
   // Handle new request form changes
@@ -120,16 +180,9 @@ const HelpRequestSystem = () => {
     e.preventDefault();
 
     // Validate location
-    if (!currentUser.location && !newRequest.locationLink) {
-      alert('Please update your location or provide a specific location for this request');
-      return;
-    }
-
-    // Validate Google Maps link if provided
-    if (newRequest.locationLink &&
-        !newRequest.locationLink.includes('goo.gl/maps') &&
-        !newRequest.locationLink.includes('google.com/maps')) {
-      alert('Please enter a valid Google Maps link for the specific location');
+    if (!currentUser.location) {
+      alert('Please allow location detection before creating a help request');
+      detectUserLocation(); // Try to detect location again
       return;
     }
 
@@ -142,7 +195,8 @@ const HelpRequestSystem = () => {
       description: newRequest.description,
       type: newRequest.type,
       status: 'active',
-      locationLink: newRequest.locationLink || currentUser.locationLink,
+      locationLink: currentUser.locationLink,
+      address: currentUser.address,
       createdAt: new Date().toISOString(),
       distance: 0 // It's the user's own request
     };
@@ -250,25 +304,43 @@ const HelpRequestSystem = () => {
       <div className="location-section">
         <h2>Your Location</h2>
         <p className="location-instruction">
-          Set your location to see help requests within 1km and allow others to find your requests.
+          We automatically detect your location to show help requests within 1km.
         </p>
-        <div className="location-input-group">
-          <input
-            type="text"
-            placeholder="Paste Google Maps link to your location (e.g., https://goo.gl/maps/...)"
-            value={currentUser.locationLink}
-            onChange={handleLocationLinkChange}
-          />
-          <button onClick={updateUserLocation}>Update Location</button>
-        </div>
-        {currentUser.location ? (
-          <p className="location-status">
-            <span className="location-status-icon">✓</span> Your location is set. You can now see help requests within 1km.
-          </p>
+
+        {currentUser.isLocating ? (
+          <div className="location-loading">
+            <div className="loading-spinner"></div>
+            <p>Detecting your location...</p>
+          </div>
+        ) : currentUser.locationError ? (
+          <div className="location-error">
+            <p className="location-warning">
+              <span className="location-warning-icon">!</span> {currentUser.locationError}
+            </p>
+            <button className="retry-button" onClick={detectUserLocation}>
+              Try Again
+            </button>
+          </div>
+        ) : currentUser.location ? (
+          <div className="location-detected">
+            <p className="location-status">
+              <span className="location-status-icon">✓</span> Location detected: {currentUser.address}
+            </p>
+            <p className="location-coordinates">
+              <a href={currentUser.locationLink} target="_blank" rel="noopener noreferrer">
+                View on Google Maps
+              </a>
+            </p>
+          </div>
         ) : (
-          <p className="location-warning">
-            <span className="location-warning-icon">!</span> Please set your location to see nearby help requests.
-          </p>
+          <div className="location-not-set">
+            <p className="location-warning">
+              <span className="location-warning-icon">!</span> Location not detected.
+            </p>
+            <button className="detect-button" onClick={detectUserLocation}>
+              Detect My Location
+            </button>
+          </div>
         )}
       </div>
 
@@ -403,21 +475,23 @@ const HelpRequestSystem = () => {
                 ></textarea>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="locationLink">
-                  Specific Location (optional)
-                </label>
-                <input
-                  type="text"
-                  id="locationLink"
-                  name="locationLink"
-                  value={newRequest.locationLink}
-                  onChange={handleNewRequestChange}
-                  placeholder="Google Maps link (if different from your location)"
-                />
-                <small>
-                  Leave empty to use your current location, or provide a specific Google Maps link
-                </small>
+              <div className="form-group location-info">
+                <label>Your Location</label>
+                {currentUser.location ? (
+                  <div className="current-location-info">
+                    <p>{currentUser.address}</p>
+                    <small>
+                      Your current location will be used for this help request
+                    </small>
+                  </div>
+                ) : (
+                  <div className="no-location-warning">
+                    <p>Location not detected</p>
+                    <button type="button" className="detect-button" onClick={detectUserLocation}>
+                      Detect My Location
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button type="submit" className="submit-button">Create Help Request</button>

@@ -39,32 +39,71 @@
   color: #333;
 }
 
-.location-input-group {
+.location-loading {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
 }
 
-.location-input-group input {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1rem;
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #4285F4;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 10px;
 }
 
-.location-input-group button {
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.location-loading p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.location-error, .location-detected, .location-not-set {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.retry-button, .detect-button {
   background-color: #4285F4;
   color: white;
   border: none;
-  padding: 0 20px;
+  padding: 10px 20px;
   border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 10px;
+  display: block;
 }
 
-.location-input-group button:hover {
+.retry-button:hover, .detect-button:hover {
   background-color: #3367d6;
+}
+
+.location-coordinates {
+  margin-top: 5px;
+}
+
+.location-coordinates a {
+  color: #4285F4;
+  text-decoration: none;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.location-coordinates a:hover {
+  text-decoration: underline;
 }
 
 .location-instruction {
@@ -333,6 +372,35 @@
   margin-top: 5px;
   color: #757575;
   font-size: 0.85rem;
+}
+
+.location-info {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4285F4;
+}
+
+.current-location-info p {
+  margin: 0 0 5px 0;
+  font-weight: 500;
+  color: #333;
+}
+
+.no-location-warning {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.no-location-warning p {
+  margin: 0 0 10px 0;
+  color: #FFA000;
+  font-weight: 500;
+}
+
+.no-location-warning .detect-button {
+  margin-top: 0;
 }
 
 .submit-button {
