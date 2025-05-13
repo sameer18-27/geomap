@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoQuest - Block-Based Quests</title>
+  <style>
+    /* Reset and base styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body, html {
+      min-height: 100%;
+      width: 100%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+    }
+    
+    /* Container styles */
+    .quest-blocks-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    /* Header styles */
+    .quest-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .quest-header h1 {
+      color: #4285F4;
+      font-size: 2.5rem;
+      margin-bottom: 5px;
+    }
+    
+    .quest-header p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+    
+    /* Location input styles */
+    .location-input {
+      background-color: #f5f5f5;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .location-input h2 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .location-input input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    
+    .location-button {
+      background-color: #4285F4;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .location-button:hover {
+      background-color: #3367d6;
+    }
+    
+    /* Section styles */
+    .available-quests, 
+    .active-quest-container,
+    .completed-quests-section {
+      margin-bottom: 40px;
+    }
+    
+    .available-quests h2,
+    .active-quest-container h2,
+    .completed-quests-section h2 {
+      margin-bottom: 20px;
+      color: #333;
+      border-bottom: 2px solid #f0f0f0;
+      padding-bottom: 10px;
+    }
+    
+    /* Quest grid styles */
+    .quest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .quest-block {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .quest-block:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    .quest-block.completed {
+      opacity: 0.7;
+      cursor: default;
+    }
+    
+    .quest-block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    
+    .quest-block-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.2rem;
+    }
+    
+    .quest-type {
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .quest-type.exploration {
+      background-color: #E3F2FD;
+      color: #1976D2;
+    }
+    
+    .quest-type.delivery {
+      background-color: #FFF8E1;
+      color: #FFA000;
+    }
+    
+    .quest-type.assistance {
+      background-color: #E8F5E9;
+      color: #388E3C;
+    }
+    
+    .quest-type.performance {
+      background-color: #F3E5F5;
+      color: #8E24AA;
+    }
+    
+    .quest-description {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    
+    .quest-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    
+    .quest-difficulty {
+      color: #757575;
+    }
+    
+    .quest-reward {
+      color: #4CAF50;
+      font-weight: 600;
+    }
+    
+    /* Completed overlay styles */
+    .completed-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-radius: 10px;
+    }
+    
+    .completed-overlay span {
+      background-color: #4CAF50;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: 600;
+      transform: rotate(-15deg);
+    }
+    
+    /* Active quest styles */
+    .active-quest-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      border-left: 5px solid #4285F4;
+    }
+    
+    .active-quest-card .quest-header {
+      text-align: left;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .active-quest-card h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.5rem;
+    }
+    
+    .quest-details {
+      background-color: #f9f9f9;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    
+    .quest-details p {
+      margin: 8px 0;
+      color: #555;
+    }
+    
+    /* Button styles */
+    .quest-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .map-link-button, 
+    .complete-button, 
+    .cancel-button {
+      padding: 10px 15px;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+      text-decoration: none;
+      display: inline-block;
+    }
+    
+    .map-link-button {
+      background-color: #4285F4;
+      color: white;
+      border: none;
+    }
+    
+    .complete-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+    }
+    
+    .cancel-button {
+      background-color: white;
+      color: #f44336;
+      border: 1px solid #f44336;
+    }
+    
+    .map-link-button:hover {
+      background-color: #3367d6;
+    }
+    
+    .complete-button:hover {
+      background-color: #388E3C;
+    }
+    
+    .cancel-button:hover {
+      background-color: #ffebee;
+    }
+    
+    /* Completed quests styles */
+    .no-quests {
+      color: #757575;
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+    }
+    
+    .completed-quests-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .completed-quest-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      align-items: center;
+    }
+    
+    .completed-quest-item:last-child {
+      border-bottom: none;
+    }
+    
+    .completed-quest-title {
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .completed-quest-reward {
+      color: #4CAF50;
+      font-weight: 600;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .quest-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .quest-actions {
+        flex-direction: column;
+      }
+      
+      .map-link-button, 
+      .complete-button, 
+      .cancel-button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quest-blocks-container">
+    <header class="quest-header">
+      <h1>GeoQuest</h1>
+      <p>Discover and complete quests in your area</p>
+    </header>
+
+    <div class="location-input">
+      <h2>Your Location</h2>
+      <input
+        type="text"
+        id="location-input"
+        placeholder="Enter your location or address"
+      />
+      <button class="location-button" id="update-location">Update Location</button>
+    </div>
+
+    <div id="active-quest-container" class="active-quest-container" style="display: none;">
+      <h2>Active Quest</h2>
+      <div class="active-quest-card" id="active-quest-card">
+        <!-- Active quest content will be inserted here -->
+      </div>
+    </div>
+
+    <div id="available-quests" class="available-quests">
+      <h2>Available Quests</h2>
+      <div class="quest-grid" id="quest-grid">
+        <!-- Quest blocks will be inserted here -->
+      </div>
+    </div>
+
+    <div class="completed-quests-section">
+      <h2>Completed Quests</h2>
+      <div id="completed-quests-container">
+        <p class="no-quests" id="no-completed-quests">You haven't completed any quests yet.</p>
+        <ul class="completed-quests-list" id="completed-quests-list" style="display: none;">
+          <!-- Completed quests will be inserted here -->
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Sample quests data
+    const quests = [
+      {
+        id: 'quest1',
+        title: 'Hidden Treasure',
+        description: 'Find the hidden treasure in the park.',
+        location: 'Central Park, New York',
+        mapLink: 'https://goo.gl/maps/8ZLdY3v5Jzc7JLWL6',
+        reward: '50 tokens',
+        difficulty: 'Easy',
+        type: 'Exploration'
+      },
+      {
+        id: 'quest2',
+        title: 'Deliver Package',
+        description: 'Deliver this important package to the coffee shop.',
+        location: 'Starbucks, Times Square',
+        mapLink: 'https://goo.gl/maps/QKp7wrKwXHZHCbJH7',
+        reward: '75 tokens',
+        difficulty: 'Medium',
+        type: 'Delivery'
+      },
+      {
+        id: 'quest3',
+        title: 'Help with Groceries',
+        description: 'Help an elderly person carry their groceries from the supermarket.',
+        location: 'Whole Foods Market, Union Square',
+        mapLink: 'https://goo.gl/maps/8mJJFm7W5ZdPFZ6v6',
+        reward: '100 tokens',
+        difficulty: 'Easy',
+        type: 'Assistance'
+      },
+      {
+        id: 'quest4',
+        title: 'Street Performance',
+        description: 'Perform a song or dance in a public place for at least 5 minutes.',
+        location: 'Washington Square Park',
+        mapLink: 'https://goo.gl/maps/LZ4zrdTWgKvD9Dft9',
+        reward: '150 tokens',
+        difficulty: 'Hard',
+        type: 'Performance'
+      }
+    ];
+
+    // State variables
+    let activeQuest = null;
+    let completedQuests = [];
+    let userLocation = '';
+
+    // DOM elements
+    const locationInput = document.getElementById('location-input');
+    const updateLocationButton = document.getElementById('update-location');
+    const questGrid = document.getElementById('quest-grid');
+    const activeQuestContainer = document.getElementById('active-quest-container');
+    const activeQuestCard = document.getElementById('active-quest-card');
+    const noCompletedQuests = document.getElementById('no-completed-quests');
+    const completedQuestsList = document.getElementById('completed-quests-list');
+
+    // Render quest blocks
+    function renderQuestBlocks() {
+      questGrid.innerHTML = '';
+      
+      quests.forEach(quest => {
+        const isCompleted = completedQuests.includes(quest.id);
+        
+        const questBlock = document.createElement('div');
+        questBlock.className = `quest-block ${isCompleted ? 'completed' : ''}`;
+        
+        questBlock.innerHTML = `
+          <div class="quest-block-header">
+            <h3>${quest.title}</h3>
+            <span class="quest-type ${quest.type.toLowerCase()}">${quest.type}</span>
+          </div>
+          <p class="quest-description">${quest.description}</p>
+          <div class="quest-footer">
+            <span class="quest-difficulty">${quest.difficulty}</span>
+            <span class="quest-reward">${quest.reward}</span>
+          </div>
+          ${isCompleted ? '<div class="completed-overlay"><span>Completed</span></div>' : ''}
+        `;
+        
+        if (!isCompleted) {
+          questBlock.addEventListener('click', () => activateQuest(quest));
+        }
+        
+        questGrid.appendChild(questBlock);
+      });
+    }
+
+    // Activate a quest
+    function activateQuest(quest) {
+      activeQuest = quest;
+      
+      // Update UI
+      activeQuestCard.innerHTML = `
+        <div class="quest-header">
+          <h3>${quest.title}</h3>
+          <span class="quest-type ${quest.type.toLowerCase()}">${quest.type}</span>
+        </div>
+        <p class="quest-description">${quest.description}</p>
+        <div class="quest-details">
+          <p><strong>Location:</strong> ${quest.location}</p>
+          <p><strong>Difficulty:</strong> ${quest.difficulty}</p>
+          <p><strong>Reward:</strong> ${quest.reward}</p>
+        </div>
+        <div class="quest-actions">
+          <a href="${quest.mapLink}" target="_blank" rel="noopener noreferrer" class="map-link-button">
+            Open in Google Maps
+          </a>
+          <button class="complete-button" id="complete-quest">Mark as Completed</button>
+          <button class="cancel-button" id="cancel-quest">Cancel Quest</button>
+        </div>
+      `;
+      
+      // Show active quest container
+      activeQuestContainer.style.display = 'block';
+      
+      // Add event listeners
+      document.getElementById('complete-quest').addEventListener('click', () => completeQuest(quest));
+      document.getElementById('cancel-quest').addEventListener('click', cancelQuest);
+    }
+
+    // Complete a quest
+    function completeQuest(quest) {
+      completedQuests.push(quest.id);
+      activeQuest = null;
+      
+      // Update UI
+      activeQuestContainer.style.display = 'none';
+      renderQuestBlocks();
+      renderCompletedQuests();
+      
+      // Show notification
+      alert(`Congratulations! You've completed "${quest.title}" and earned ${quest.reward}!`);
+    }
+
+    // Cancel active quest
+    function cancelQuest() {
+      activeQuest = null;
+      activeQuestContainer.style.display = 'none';
+    }
+
+    // Render completed quests
+    function renderCompletedQuests() {
+      if (completedQuests.length === 0) {
+        noCompletedQuests.style.display = 'block';
+        completedQuestsList.style.display = 'none';
+        return;
+      }
+      
+      noCompletedQuests.style.display = 'none';
+      completedQuestsList.style.display = 'block';
+      completedQuestsList.innerHTML = '';
+      
+      const completedQuestsData = quests.filter(quest => completedQuests.includes(quest.id));
+      
+      completedQuestsData.forEach(quest => {
+        const listItem = document.createElement('li');
+        listItem.className = 'completed-quest-item';
+        listItem.innerHTML = `
+          <span class="completed-quest-title">${quest.title}</span>
+          <span class="completed-quest-reward">${quest.reward}</span>
+        `;
+        
+        completedQuestsList.appendChild(listItem);
+      });
+    }
+
+    // Update location
+    updateLocationButton.addEventListener('click', () => {
+      userLocation = locationInput.value;
+      if (userLocation) {
+        alert(`Location updated to: ${userLocation}`);
+      } else {
+        alert('Please enter a location');
+      }
+    });
+
+    // Initialize the app
+    function init() {
+      renderQuestBlocks();
+      renderCompletedQuests();
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
