@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoQuest Map</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin=""/>
+  
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+          crossorigin=""></script>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    
+    header {
+      background-color: #4285F4;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+    }
+    
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .container {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    #map {
+      flex: 1;
+      width: 100%;
+      z-index: 1;
+    }
+    
+    .quests-panel {
+      background-color: white;
+      padding: 15px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      max-height: 40vh;
+      overflow-y: auto;
+    }
+    
+    .quest-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .quest-item {
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #f5f5f5;
+      border-left: 4px solid #FF9800;
+      border-radius: 4px;
+    }
+    
+    .quest-item.active {
+      border-left-color: #4CAF50;
+    }
+    
+    .quest-item h3 {
+      margin: 0 0 5px 0;
+      font-size: 16px;
+    }
+    
+    .quest-item p {
+      margin: 0 0 5px 0;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .status {
+      font-weight: bold;
+    }
+    
+    .status.available {
+      color: #FF9800;
+    }
+    
+    .status.active {
+      color: #4CAF50;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>GeoQuest Map</h1>
+  </header>
+  
+  <div class="container">
+    <div id="map"></div>
+    
+    <div class="quests-panel">
+      <h2>Available Quests</h2>
+      <ul id="quest-list" class="quest-list">
+        <!-- Quest items will be added here dynamically -->
+      </ul>
+    </div>
+  </div>
+  
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([51.505, -0.09], 13);
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(map);
+    
+    // Create custom icons
+    function createIcon(color, isUser = false) {
+      return L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: ${color}; width: 20px; height: 20px; border-radius: ${isUser ? '50%' : '4px'}; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>`,
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
+        popupAnchor: [0, -10]
+      });
+    }
+    
+    // Create icons
+    const questIcon = createIcon('#FF9800');
+    const userIcon = createIcon('#4285F4', true);
+    
+    // Mock quests data
+    const quests = [
+      {
+        id: 'quest1',
+        title: 'Hidden Treasure',
+        description: 'Find the hidden treasure in the park.',
+        lat: 51.505,
+        lng: -0.09,
+        status: 'available'
+      },
+      {
+        id: 'quest2',
+        title: 'Deliver Package',
+        description: 'Deliver this important package to the coffee shop.',
+        lat: 51.51,
+        lng: -0.085,
+        status: 'available'
+      },
+      {
+        id: 'quest3',
+        title: 'Help with Groceries',
+        description: 'Help an elderly person carry their groceries.',
+        lat: 51.5,
+        lng: -0.095,
+        status: 'available'
+      }
+    ];
+    
+    // Add quest markers to map
+    quests.forEach(quest => {
+      L.marker([quest.lat, quest.lng], { icon: questIcon })
+        .addTo(map)
+        .bindPopup(`
+          <div style="padding: 10px;">
+            <h3 style="margin: 0 0 5px 0;">${quest.title}</h3>
+            <p style="margin: 0 0 5px 0;">${quest.description}</p>
+            <p style="margin: 0; color: #666;">Status: ${quest.status}</p>
+          </div>
+        `);
+    });
+    
+    // Render quests list
+    function renderQuestsList() {
+      const questList = document.getElementById('quest-list');
+      questList.innerHTML = '';
+      
+      quests.forEach(quest => {
+        const li = document.createElement('li');
+        li.className = `quest-item ${quest.status === 'active' ? 'active' : ''}`;
+        li.innerHTML = `
+          <h3>${quest.title}</h3>
+          <p>${quest.description}</p>
+          <p>Status: <span class="status ${quest.status}">${quest.status}</span></p>
+          <p id="distance-${quest.id}"></p>
+        `;
+        
+        // Add click event to center map on quest
+        li.addEventListener('click', () => {
+          map.setView([quest.lat, quest.lng], 16);
+        });
+        
+        questList.appendChild(li);
+      });
+    }
+    
+    // Initial render
+    renderQuestsList();
+    
+    // User location tracking
+    let userMarker = null;
+    let userPosition = null;
+    
+    // Calculate distance between two points (Haversine formula)
+    function getDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // Earth radius in meters
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+      
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      
+      return R * c; // Distance in meters
+    }
+    
+    // Check proximity to quests
+    function checkQuestProximity(position) {
+      quests.forEach(quest => {
+        if (quest.status !== 'available') return;
+        
+        const distance = getDistance(
+          position.lat, position.lng,
+          quest.lat, quest.lng
+        );
+        
+        if (distance <= 100) { // 100 meters threshold
+          console.log(`Quest ${quest.id} is within range (${distance.toFixed(0)}m)`);
+          
+          // Update quest status
+          quest.status = 'active';
+          
+          // Show notification
+          alert(`You are near quest "${quest.title}"! Check the map to see details.`);
+          
+          // Update UI
+          renderQuestsList();
+        }
+      });
+    }
+    
+    // Update distance displays
+    function updateDistances(position) {
+      quests.forEach(quest => {
+        const distance = getDistance(
+          position.lat, position.lng,
+          quest.lat, quest.lng
+        );
+        
+        const distanceElement = document.getElementById(`distance-${quest.id}`);
+        if (distanceElement) {
+          distanceElement.textContent = `Distance: ${distance.toFixed(0)}m`;
+        }
+      });
+    }
+    
+    // Get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          userPosition = { lat: latitude, lng: longitude };
+          
+          // Center map on user if first position
+          if (!userMarker) {
+            map.setView([latitude, longitude], 15);
+          }
+          
+          // Add or update user marker
+          if (userMarker) {
+            userMarker.setLatLng([latitude, longitude]);
+          } else {
+            userMarker = L.marker([latitude, longitude], { icon: userIcon })
+              .addTo(map)
+              .bindPopup('You are here!')
+              .openPopup();
+          }
+          
+          // Check proximity to quests
+          checkQuestProximity(userPosition);
+          
+          // Update distances
+          updateDistances(userPosition);
+        },
+        (error) => {
+          console.error('Geolocation error:', error);
+          alert('Unable to access location. Please enable location services.');
+        },
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert('Geolocation is not supported by this browser.');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GeoQuest QR Code</title>
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #4285F4;
+      margin-bottom: 20px;
+    }
+    #qrcode {
+      margin: 20px 0;
+    }
+    .instructions {
+      max-width: 600px;
+      margin: 20px 0;
+      padding: 15px;
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      text-align: left;
+    }
+    .url {
+      font-weight: bold;
+      color: #4285F4;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h1>GeoQuest Mobile Access</h1>
+  
+  <div id="qrcode"></div>
+  
+  <p class="url" id="mapUrl">http://192.168.199.53:3000/map.html</p>
+  
+  <div class="instructions">
+    <h2>Instructions:</h2>
+    <ol>
+      <li>Make sure your phone is connected to the same WiFi network as this computer</li>
+      <li>Scan the QR code above with your phone's camera</li>
+      <li>Open the link in your phone's browser</li>
+      <li>Allow location access when prompted</li>
+      <li>You should now see the GeoQuest map on your phone</li>
+    </ol>
+    <p><strong>Note:</strong> If the QR code doesn't work, manually enter the URL shown above in your phone's browser.</p>
+  </div>
+  
+  <script>
+    // Generate QR code
+    const mapUrl = document.getElementById('mapUrl').textContent;
+    new QRCode(document.getElementById("qrcode"), {
+      text: mapUrl,
+      width: 256,
+      height: 256,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  </script>
+</body>
+</html>
